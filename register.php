@@ -8,8 +8,7 @@ if (isset($_SESSION["username"])) {
     exit();
 }
 
-// Hier solltest du deine Datenbankverbindung herstellen
-// Ersetze 'dbname', 'username' und 'password' durch deine tatsächlichen Datenbankinformationen
+// Datenbankverbindung herstellen
 $db = new mysqli('localhost', 'root', '', 'habbo');
 
 // Überprüfe die Verbindung auf Fehler
@@ -18,7 +17,7 @@ if ($db->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Hier solltest du die Benutzereingaben überprüfen und vorbereitete Anweisungen für die Datenbankzugriffe verwenden
+   
     $username = $_POST["username"];
     $password = password_hash($_POST["password"], PASSWORD_DEFAULT); // Passwort sicher hashen
 
