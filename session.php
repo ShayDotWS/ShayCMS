@@ -2,8 +2,7 @@
 session_start();
 
 if (isset($_SESSION["username"])) {
-    // Hier solltest du deine Datenbankverbindung herstellen
-    // Ersetze 'dbname', 'username' und 'password' durch deine tatsächlichen Datenbankinformationen
+    // Datenbankverbindung herstellen
     $db = new mysqli('localhost', 'root', '', 'habbo');
 
     // Überprüfe die Verbindung auf Fehler
