@@ -7,8 +7,7 @@ if (!isset($_SESSION["username"])) {
     exit();
 }
 
-// Hier solltest du deine Datenbankverbindung herstellen
-// Ersetze 'dbname', 'username' und 'password' durch deine tatsächlichen Datenbankinformationen
+// Datenbankverbindung herstellen
 $db = new mysqli('localhost', 'root', '', 'habbo');
 
 // Überprüfe die Verbindung auf Fehler
@@ -86,7 +85,7 @@ function generateRandomString($length) {
         <div class="w-1/2">
             <h1 class="text-2xl font-semibold mb-4">Hallo, <?= htmlspecialchars($_SESSION["username"]) ?>!</h1>
         
-            <!-- Weitere Inhalte deiner Seite -->
+        
 
             <form action="logout.php" method="post" class="mb-4">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Logout</button>
@@ -127,7 +126,6 @@ function generateRandomString($length) {
     </div>
 </div>
 
-<!-- ... (dein weiterer HTML-Code) ... -->
 
 </body>
 </html>
