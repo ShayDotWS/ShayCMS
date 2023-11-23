@@ -3,7 +3,7 @@ session_start();
 
 include './inc/config.php';
 
-// Hier solltest du deine Datenbankverbindung herstellen
+// Hier sollte deine Datenbankverbindung hergestellt werden
 $db = new mysqli($mysqlHost, $mysqlUsername, $mysqlPassword, $mysqlDatabase);
 
 // Überprüfe die Verbindung auf Fehler
@@ -12,7 +12,7 @@ if ($db->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Hier solltest du die Benutzereingaben überprüfen und vorbereitete Anweisungen für die Datenbankzugriffe verwenden
+    // Hier sollte die Benutzereingaben überprüft und vorbereitete Anweisungen für die Datenbankzugriffe verwendet werden
     $username = $_POST["username"];
     $password = password_hash($_POST["password"], PASSWORD_DEFAULT); // Passwort sicher hashen
 
@@ -34,9 +34,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $ipCurrent = $_SERVER['REMOTE_ADDR']; // Aktuelle IP-Adresse des Benutzers
         $onlineStatus = 0; // Online-Status
 
-        $insertQuery = "INSERT INTO users (username, password, account_created, account_day_of_birth, ip_register, ip_current, online) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        // Generiere ein zufälliges auth_ticket
+        $authTicket = uniqid("ShayCMS-");
+
+        $insertQuery = "INSERT INTO users (username, password, account_created, account_day_of_birth, ip_register, ip_current, online, auth_ticket) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $insertStmt = $db->prepare($insertQuery);
-        $insertStmt->bind_param("ssisssi", $username, $password, $accountCreated, $accountDayOfBirth, $ipRegister, $ipCurrent, $onlineStatus);
+        $insertStmt->bind_param("ssisssis", $username, $password, $accountCreated, $accountDayOfBirth, $ipRegister, $ipCurrent, $onlineStatus, $authTicket);
         $insertStmt->execute();
 
         // Starte eine Session für den neuen Benutzer
