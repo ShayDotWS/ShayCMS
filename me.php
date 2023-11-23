@@ -7,8 +7,16 @@ if (!isset($_SESSION["username"])) {
     exit();
 }
 
-// Datenbankverbindung herstellen
-$db = new mysqli('localhost', 'root', '', 'habbo');
+// Lade die MySQL-Konfigurationsdatei
+include './inc/config.php';
+
+// Hier solltest du deine Datenbankverbindung herstellen
+$db = new mysqli($mysqlHost, $mysqlUsername, $mysqlPassword, $mysqlDatabase);
+
+// Restlicher Code bleibt unverändert
+// ...
+
+
 
 // Überprüfe die Verbindung auf Fehler
 if ($db->connect_error) {
@@ -27,33 +35,14 @@ $stmt->bind_result($authTicket, $look);
 $stmt->fetch();
 $stmt->close();
 
-// Wenn der "Ab ins Hotel"-Button geklickt wird
-if (isset($_POST["ab_ins_hotel"])) {
-    // Generiere ein neues auth_ticket
-    $newAuthTicket = "ShayCMS-" . generateRandomString(16); // 16 zufällige Zeichen
-
-    // Speichere das neue auth_ticket in der Datenbank
-    $updateQuery = "UPDATE users SET auth_ticket = ? WHERE username = ?";
-    $updateStmt = $db->prepare($updateQuery);
-    $updateStmt->bind_param("ss", $newAuthTicket, $username);
-
-    if ($updateStmt->execute()) {
-        // Konstruiere die URL mit dem "auth_ticket"
-        $redirectURL = "http://localhost/nitro-react/build/index.php?sso=" . urlencode($newAuthTicket);
-
-        // Leite den Benutzer weiter
-        header("Location: $redirectURL");
-        exit();
-    } else {
-        // Gib eine Meldung aus, wenn das Update fehlschlägt
-        echo "<p class='text-red-500'>Fehler beim Update des Auth-Tickets in der Datenbank.</p>";
-    }
-
-    $updateStmt->close();
-}
-
-// Schließe die Datenbankverbindung am Ende deines Skripts
-$db->close();
+// Variablen für Taler, Duckets und Diamanten aus der Datenbank abrufen
+$queryValues = "SELECT credits, pixels, points FROM users WHERE username = ?";
+$stmtValues = $db->prepare($queryValues);
+$stmtValues->bind_param("s", $username);
+$stmtValues->execute();
+$stmtValues->bind_result($talerValue, $ducketsValue, $diamantenValue);
+$stmtValues->fetch();
+$stmtValues->close();
 
 // Funktion zur Generierung eines zufälligen Strings
 function generateRandomString($length) {
@@ -65,6 +54,7 @@ function generateRandomString($length) {
     return $randomString;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -81,11 +71,25 @@ function generateRandomString($length) {
 <body class="bg-gray-800 text-white">
 
 <div class="container mx-auto mt-16">
+    <!-- Navigation -->
+    <nav class="flex justify-between mb-8">
+        <div>
+            <a href="#" class="text-xl font-semibold">Home</a>
+            <a href="#" class="ml-4 text-xl font-semibold">Team</a>
+            <a href="#" class="ml-4 text-xl font-semibold">News</a>
+        </div>
+        <div>
+            <span class="mr-4">Meine Taler: <?= $talerValue ?? 'Nicht verfügbar' ?></span>
+            <span class="mr-4">Meine Duckets: <?= $ducketsValue ?? 'Nicht verfügbar' ?></span>
+            <span>Meine Diamanten: <?= $diamantenValue ?? 'Nicht verfügbar' ?></span>
+        </div>
+    </nav>
+
     <div class="card flex bg-gray-700 text-gray-200 p-8 rounded">
         <div class="w-1/2">
             <h1 class="text-2xl font-semibold mb-4">Hallo, <?= htmlspecialchars($_SESSION["username"]) ?>!</h1>
         
-        
+            <!-- Weitere Inhalte deiner Seite -->
 
             <form action="logout.php" method="post" class="mb-4">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Logout</button>
@@ -126,6 +130,7 @@ function generateRandomString($length) {
     </div>
 </div>
 
+<!-- ... (dein weiterer HTML-Code) ... -->
 
 </body>
 </html>

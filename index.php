@@ -7,33 +7,39 @@ if (isset($_SESSION["username"])) {
     exit();
 }
 
-//  Datenbankverbindung herstellen
-$db = new mysqli('localhost', 'root', '', 'habbo');
+include './inc/config.php';
 
-// Überprüfe die Verbindung auf Fehler
-if ($db->connect_error) {
-    die("Verbindungsfehler: " . $db->connect_error);
-}
+// Hier solltest du deine Datenbankverbindung herstellen
+$db = new mysqli($mysqlHost, $mysqlUsername, $mysqlPassword, $mysqlDatabase);
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Hier solltest du die Benutzereingaben überprüfen und vorbereitete Anweisungen für die Datenbankzugriffe verwenden
     $username = $_POST["username"];
     $password = $_POST["password"];
 
     // Beispiel: Datenbankabfrage
     // Verwende vorbereitete Anweisungen, um SQL-Injektionen zu verhindern
-    $query = "SELECT * FROM users WHERE username = ? AND passwort = ?";
+    $query = "SELECT * FROM users WHERE username = ?";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("ss", $username, $password);
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Login erfolgreich
-        $_SESSION["username"] = $username;
-        header("Location: me.php");
-        exit();
+        // Benutzer gefunden, überprüfe das Passwort
+        $user = $result->fetch_assoc();
+        if (password_verify($password, $user['password'])) {
+            // Login erfolgreich
+            $_SESSION["username"] = $username;
+            header("Location: me.php");
+            exit();
+        } else {
+            // Passwort stimmt nicht überein
+            echo "<p>Ungültige Anmeldeinformationen. Bitte versuche es erneut.</p>";
+        }
     } else {
-        // Login fehlgeschlagen
+        // Benutzer nicht gefunden
         echo "<p>Ungültige Anmeldeinformationen. Bitte versuche es erneut.</p>";
     }
 
